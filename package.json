@@ -1,0 +1,26 @@
+{
+  "name": "rxjs-loading-state",
+  "version": "1.0.0",
+  "description": "Utilities to create loading states from observables",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tomraithel/rxjs-loading-state.git"
+  },
+  "keywords": [
+    "rxjs",
+    "loading",
+    "observables",
+    "streams",
+    "rx-js"
+  ],
+  "author": "hello@tomraithel.de",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tomraithel/rxjs-loading-state/issues"
+  },
+  "homepage": "https://github.com/tomraithel/rxjs-loading-state#readme"
+}
