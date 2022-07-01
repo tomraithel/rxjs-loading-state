@@ -1,11 +1,11 @@
 import { MonoTypeOperatorFunction, Observable } from "rxjs";
-import type { LoadingStateSubject } from "./loading-state.subject";
+import type { LoadingState } from "./loading-state";
 
 // Add the ability to type the loadingState, without forcing TS to infer the operator type from this reference
 type NoInfer<T> = [T][T extends any ? 0 : never];
 
 export function connectToLoadingState<Data>(
-  loadingState: LoadingStateSubject<NoInfer<Data>>
+  loadingState: LoadingState<NoInfer<Data>>
 ): MonoTypeOperatorFunction<Data> {
   return function (source: Observable<Data>): Observable<Data> {
     return new Observable<Data>((subscriber) => {

@@ -1,12 +1,12 @@
 import { catchError, from, Observable, of, Subject, throwError } from "rxjs";
 import { connectToLoadingState } from "./connect-to-loading-state.operator";
-import { LoadingStateSubject } from "./loading-state.subject";
+import { LoadingState } from "./loading-state";
 
 describe("connectToLoadingState", () => {
-  let loadingState: LoadingStateSubject<number>;
+  let loadingState: LoadingState<number>;
 
   beforeEach(() => {
-    loadingState = new LoadingStateSubject<number>();
+    loadingState = new LoadingState<number>();
   });
 
   it("should have default state if stream not subscribed", () => {
