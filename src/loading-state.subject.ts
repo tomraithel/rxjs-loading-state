@@ -17,16 +17,16 @@ export class LoadingStateSubject<T> {
     this.state = new BehaviorSubject<LoadingState<T>>(initialValue);
   }
 
-  getStateValue(): LoadingState<T> {
-    return this.state.getValue();
-  }
-
-  getState(): Observable<LoadingState<T>> {
+  asObservable(): Observable<LoadingState<T>> {
     return this.state.asObservable();
   }
 
+  getState(): LoadingState<T> {
+    return this.state.getValue();
+  }
+
   getData(): T | undefined {
-    const value = this.getStateValue();
+    const value = this.getState();
     if (
       value.type === LoadingStateType.Loading ||
       value.type === LoadingStateType.Success
@@ -38,7 +38,7 @@ export class LoadingStateSubject<T> {
   }
 
   getError(): any {
-    const value = this.getStateValue();
+    const value = this.getState();
     if (value.type === LoadingStateType.Error) {
       return value.error;
     }
@@ -76,7 +76,7 @@ export class LoadingStateSubject<T> {
 
     this.state.next({
       type: LoadingStateType.Loading,
-      data: (this.getStateValue() as any).data,
+      data: (this.getState() as any).data,
     });
   }
 
@@ -117,22 +117,22 @@ export class LoadingStateSubject<T> {
   }
 
   getType(): LoadingStateType {
-    return this.getStateValue().type;
+    return this.getState().type;
   }
 
   isNotStarted(): this is BehaviorSubject<LoadingStateNotStarted> {
-    return this.getStateValue().type === LoadingStateType.NotStarted;
+    return this.getState().type === LoadingStateType.NotStarted;
   }
 
   isLoading(): this is BehaviorSubject<LoadingStateLoading<T>> {
-    return this.getStateValue().type === LoadingStateType.Loading;
+    return this.getState().type === LoadingStateType.Loading;
   }
 
   isError(): this is BehaviorSubject<LoadingStateError> {
-    return this.getStateValue().type === LoadingStateType.Error;
+    return this.getState().type === LoadingStateType.Error;
   }
 
   isSuccess(): this is BehaviorSubject<LoadingStateSuccess<T>> {
-    return this.getStateValue().type === LoadingStateType.Success;
+    return this.getState().type === LoadingStateType.Success;
   }
 }

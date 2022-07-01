@@ -1,104 +1,105 @@
+import type { Subscription } from "rxjs";
 import { LoadingState, LoadingStateType } from "./loading-state";
 import { LoadingStateSubject } from "./loading-state.subject";
 
 describe("LoadingState", () => {
   it("should have default state", () => {
-    const ls = new LoadingStateSubject();
-    expect(ls.isNotStarted()).toEqual(true);
+    const subject = new LoadingStateSubject();
+    expect(subject.isNotStarted()).toEqual(true);
   });
 
   it("should transition from not started to loading", () => {
-    const ls = new LoadingStateSubject();
-    ls.setLoading();
-    expect(ls.isLoading()).toEqual(true);
+    const subject = new LoadingStateSubject();
+    subject.setLoading();
+    expect(subject.isLoading()).toEqual(true);
   });
 
   it("should transition from error to loading", () => {
-    const ls = new LoadingStateSubject();
-    ls.setLoading();
-    ls.setError(null);
-    ls.setLoading();
-    expect(ls.isLoading()).toEqual(true);
-    expect(ls.getStateValue()).toEqual({
+    const subject = new LoadingStateSubject();
+    subject.setLoading();
+    subject.setError(null);
+    subject.setLoading();
+    expect(subject.isLoading()).toEqual(true);
+    expect(subject.getState()).toEqual({
       type: LoadingStateType.Loading,
     } as LoadingState<string>);
   });
 
   it("should transition from success to loading with data", () => {
-    const ls = new LoadingStateSubject();
-    ls.setLoading();
-    ls.setSuccess("foo");
-    ls.setLoading();
-    expect(ls.isLoading()).toEqual(true);
-    expect(ls.getStateValue()).toEqual({
+    const subject = new LoadingStateSubject();
+    subject.setLoading();
+    subject.setSuccess("foo");
+    subject.setLoading();
+    expect(subject.isLoading()).toEqual(true);
+    expect(subject.getState()).toEqual({
       type: LoadingStateType.Loading,
       data: "foo",
     } as LoadingState<string>);
   });
 
   it("should throw error if transition from loading to loading", () => {
-    const ls = new LoadingStateSubject();
+    const subject = new LoadingStateSubject();
     expect(() => {
-      ls.setLoading();
-      ls.setLoading();
+      subject.setLoading();
+      subject.setLoading();
     }).toThrowError();
   });
 
   it("should transition from loading to success", () => {
-    const ls = new LoadingStateSubject<string>();
-    ls.setLoading();
-    ls.setSuccess("foo");
-    expect(ls.isSuccess()).toEqual(true);
-    expect(ls.getStateValue()).toEqual({
+    const subject = new LoadingStateSubject<string>();
+    subject.setLoading();
+    subject.setSuccess("foo");
+    expect(subject.isSuccess()).toEqual(true);
+    expect(subject.getState()).toEqual({
       type: LoadingStateType.Success,
       data: "foo",
     } as LoadingState<string>);
   });
 
   it("should throw error if transition from success to success", () => {
-    const ls = new LoadingStateSubject();
+    const subject = new LoadingStateSubject();
     expect(() => {
-      ls.setLoading();
-      ls.setSuccess("fii");
-      ls.setSuccess("fii");
+      subject.setLoading();
+      subject.setSuccess("fii");
+      subject.setSuccess("fii");
     }).toThrowError();
   });
 
   it("should transition from loading to error", () => {
-    const ls = new LoadingStateSubject();
-    ls.setLoading();
-    ls.setError(new Error("foo"));
-    expect(ls.isError()).toEqual(true);
-    expect(ls.getStateValue()).toEqual({
+    const subject = new LoadingStateSubject();
+    subject.setLoading();
+    subject.setError(new Error("foo"));
+    expect(subject.isError()).toEqual(true);
+    expect(subject.getState()).toEqual({
       type: LoadingStateType.Error,
       error: new Error("foo"),
     });
   });
 
   it("should throw error if transition from error to error", () => {
-    const ls = new LoadingStateSubject();
+    const subject = new LoadingStateSubject();
     expect(() => {
-      ls.setLoading();
-      ls.setError(null);
-      ls.setError(null);
+      subject.setLoading();
+      subject.setError(null);
+      subject.setError(null);
     }).toThrowError();
   });
 
   it("should throw error if resetting during loading state", () => {
-    const ls = new LoadingStateSubject();
-    ls.setLoading();
+    const subject = new LoadingStateSubject();
+    subject.setLoading();
     expect(() => {
-      ls.reset();
+      subject.reset();
     }).toThrowError();
   });
 
   it("should successfully reset in any state", () => {
-    const ls = new LoadingStateSubject<string>({
+    const subject = new LoadingStateSubject<string>({
       type: LoadingStateType.Success,
       data: "foo",
     });
-    ls.reset();
-    expect(ls.isNotStarted()).toEqual(true);
+    subject.reset();
+    expect(subject.isNotStarted()).toEqual(true);
   });
 
   it("should throw an error if setNotStarted is called in invalid state", () => {
@@ -128,5 +129,42 @@ describe("LoadingState", () => {
     expect(() => {
       subject.getError();
     }).toThrow();
+  });
+
+  it("should emit loading states on subscription", () => {
+    const subject = new LoadingStateSubject<number>();
+    let states: LoadingState<number>[] = [];
+    subject.asObservable().subscribe((v) => {
+      states.push(v);
+    });
+    subject.setLoading();
+
+    const expectedEmittedStates: LoadingState<number>[] = [
+      {
+        type: LoadingStateType.NotStarted,
+      },
+      {
+        type: LoadingStateType.Loading,
+        data: undefined,
+      },
+    ];
+    expect(states).toEqual(expectedEmittedStates);
+  });
+
+  it("should unsubscribe from previous subscription", () => {
+    const subject = new LoadingStateSubject<number>();
+    let states: LoadingState<number>[] = [];
+    const subscription: Subscription = subject.asObservable().subscribe((v) => {
+      states.push(v);
+    });
+    subscription.unsubscribe();
+    subject.setLoading();
+
+    const expectedEmittedStates: LoadingState<number>[] = [
+      {
+        type: LoadingStateType.NotStarted,
+      },
+    ];
+    expect(states).toEqual(expectedEmittedStates);
   });
 });
