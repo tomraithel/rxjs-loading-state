@@ -21,7 +21,7 @@ describe("LoadingState", () => {
     s.setError(null);
     s.setLoading();
     expect(s.isLoading()).toEqual(true);
-    expect(s.getState()).toEqual({
+    expect(s.getSnapshot()).toEqual({
       type: LoadingStateType.Loading,
     } as LoadingStateSnapshot<string>);
   });
@@ -32,7 +32,7 @@ describe("LoadingState", () => {
     s.setSuccess("foo");
     s.setLoading();
     expect(s.isLoading()).toEqual(true);
-    expect(s.getState()).toEqual({
+    expect(s.getSnapshot()).toEqual({
       type: LoadingStateType.Loading,
       data: "foo",
     } as LoadingStateSnapshot<string>);
@@ -51,7 +51,7 @@ describe("LoadingState", () => {
     s.setLoading();
     s.setSuccess("foo");
     expect(s.isSuccess()).toEqual(true);
-    expect(s.getState()).toEqual({
+    expect(s.getSnapshot()).toEqual({
       type: LoadingStateType.Success,
       data: "foo",
     } as LoadingStateSnapshot<string>);
@@ -71,7 +71,7 @@ describe("LoadingState", () => {
     s.setLoading();
     s.setError(new Error("foo"));
     expect(s.isError()).toEqual(true);
-    expect(s.getState()).toEqual({
+    expect(s.getSnapshot()).toEqual({
       type: LoadingStateType.Error,
       error: new Error("foo"),
     });

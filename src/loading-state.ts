@@ -1,11 +1,5 @@
 import { BehaviorSubject, Observable } from "rxjs";
-import type {
-  LoadingStateSnapshot,
-  LoadingStateSnapshotError,
-  LoadingStateSnapshotLoading,
-  LoadingStateSnapshotNotStarted,
-  LoadingStateSnapshotSuccess,
-} from "./loading-state.snapshot";
+import type { LoadingStateSnapshot } from "./loading-state.snapshot";
 import { LoadingStateType } from "./loading-state.type";
 
 export class LoadingState<T> {
@@ -23,12 +17,12 @@ export class LoadingState<T> {
     return this.snapshot.asObservable();
   }
 
-  getState(): LoadingStateSnapshot<T> {
+  getSnapshot(): LoadingStateSnapshot<T> {
     return this.snapshot.getValue();
   }
 
   getData(): T | undefined {
-    const value = this.getState();
+    const value = this.getSnapshot();
     if (
       value.type === LoadingStateType.Loading ||
       value.type === LoadingStateType.Success
@@ -40,7 +34,7 @@ export class LoadingState<T> {
   }
 
   getError(): any {
-    const value = this.getState();
+    const value = this.getSnapshot();
     if (value.type === LoadingStateType.Error) {
       return value.error;
     }
@@ -78,7 +72,7 @@ export class LoadingState<T> {
 
     this.snapshot.next({
       type: LoadingStateType.Loading,
-      data: (this.getState() as any).data,
+      data: (this.getSnapshot() as any).data,
     });
   }
 
@@ -119,22 +113,22 @@ export class LoadingState<T> {
   }
 
   getType(): LoadingStateType {
-    return this.getState().type;
+    return this.getSnapshot().type;
   }
 
-  isNotStarted(): this is BehaviorSubject<LoadingStateSnapshotNotStarted> {
-    return this.getState().type === LoadingStateType.NotStarted;
+  isNotStarted(): boolean {
+    return this.getSnapshot().type === LoadingStateType.NotStarted;
   }
 
-  isLoading(): this is BehaviorSubject<LoadingStateSnapshotLoading<T>> {
-    return this.getState().type === LoadingStateType.Loading;
+  isLoading(): boolean {
+    return this.getSnapshot().type === LoadingStateType.Loading;
   }
 
-  isError(): this is BehaviorSubject<LoadingStateSnapshotError> {
-    return this.getState().type === LoadingStateType.Error;
+  isError(): boolean {
+    return this.getSnapshot().type === LoadingStateType.Error;
   }
 
-  isSuccess(): this is BehaviorSubject<LoadingStateSnapshotSuccess<T>> {
-    return this.getState().type === LoadingStateType.Success;
+  isSuccess(): boolean {
+    return this.getSnapshot().type === LoadingStateType.Success;
   }
 }
