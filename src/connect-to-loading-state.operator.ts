@@ -9,14 +9,11 @@ export function connectToLoadingState<Data>(
 ): MonoTypeOperatorFunction<Data> {
   return function (source: Observable<Data>): Observable<Data> {
     return new Observable<Data>((subscriber) => {
-      let lastValue: Data;
-
       loadingState.setLoading();
 
       const innerSubscription = source.subscribe({
         next: (value: Data) => {
-          lastValue = value;
-          loadingState.updateValue(value);
+          loadingState.updateData(value);
           subscriber.next(value);
         },
 
@@ -26,7 +23,7 @@ export function connectToLoadingState<Data>(
         },
 
         complete: () => {
-          loadingState.setSuccess(lastValue);
+          loadingState.setSuccess(loadingState.getData());
           subscriber.complete();
         },
       });

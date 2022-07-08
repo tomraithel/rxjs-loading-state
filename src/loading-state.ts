@@ -42,11 +42,11 @@ export class LoadingState<T> {
     throw new Error(`Illegal state - not allowed to retrieve error`);
   }
 
-  updateValue(newValue?: T) {
+  updateData(newData?: T) {
     if (this.isSuccess() || this.isLoading()) {
       this.snapshot.next({
         type: LoadingStateType.Loading,
-        data: newValue,
+        data: newData,
       });
     }
   }
