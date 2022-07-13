@@ -11,15 +11,15 @@ describe("LoadingState", () => {
 
   it("should transition from not started to loading", () => {
     const s = new LoadingState();
-    s.setLoading();
+    s.start();
     expect(s.isLoading()).toEqual(true);
   });
 
   it("should transition from error to loading", () => {
     const s = new LoadingState();
-    s.setLoading();
-    s.setError(null);
-    s.setLoading();
+    s.start();
+    s.fail(null);
+    s.start();
     expect(s.isLoading()).toEqual(true);
     expect(s.getSnapshot()).toEqual({
       type: LoadingStateType.Loading,
@@ -28,9 +28,9 @@ describe("LoadingState", () => {
 
   it("should transition from success to loading with data", () => {
     const s = new LoadingState();
-    s.setLoading();
-    s.setSuccess("foo");
-    s.setLoading();
+    s.start();
+    s.succeed("foo");
+    s.start();
     expect(s.isLoading()).toEqual(true);
     expect(s.getSnapshot()).toEqual({
       type: LoadingStateType.Loading,
@@ -41,15 +41,15 @@ describe("LoadingState", () => {
   it("should throw error if transition from loading to loading", () => {
     const s = new LoadingState();
     expect(() => {
-      s.setLoading();
-      s.setLoading();
+      s.start();
+      s.start();
     }).toThrowError();
   });
 
   it("should transition from loading to success", () => {
     const s = new LoadingState<string>();
-    s.setLoading();
-    s.setSuccess("foo");
+    s.start();
+    s.succeed("foo");
     expect(s.isSuccess()).toEqual(true);
     expect(s.getSnapshot()).toEqual({
       type: LoadingStateType.Success,
@@ -60,16 +60,16 @@ describe("LoadingState", () => {
   it("should throw error if transition from success to success", () => {
     const s = new LoadingState();
     expect(() => {
-      s.setLoading();
-      s.setSuccess("fii");
-      s.setSuccess("fii");
+      s.start();
+      s.succeed("fii");
+      s.succeed("fii");
     }).toThrowError();
   });
 
   it("should transition from loading to error", () => {
     const s = new LoadingState();
-    s.setLoading();
-    s.setError(new Error("foo"));
+    s.start();
+    s.fail(new Error("foo"));
     expect(s.isError()).toEqual(true);
     expect(s.getSnapshot()).toEqual({
       type: LoadingStateType.Error,
@@ -80,21 +80,27 @@ describe("LoadingState", () => {
   it("should throw error if transition from error to error", () => {
     const s = new LoadingState();
     expect(() => {
-      s.setLoading();
-      s.setError(null);
-      s.setError(null);
+      s.start();
+      s.fail(null);
+      s.fail(null);
     }).toThrowError();
   });
 
-  it("should throw error if resetting during loading state", () => {
+  it("should throw error if resetting during notStarted state", () => {
     const s = new LoadingState();
-    s.setLoading();
     expect(() => {
       s.reset();
     }).toThrowError();
   });
 
-  it("should successfully reset in any state", () => {
+  it("should successfully reset in loading state", () => {
+    const s = new LoadingState();
+    s.start();
+    s.reset();
+    expect(s.isNotStarted()).toEqual(true);
+  });
+
+  it("should successfully reset in success state", () => {
     const s = new LoadingState<string>({
       type: LoadingStateType.Success,
       data: "foo",
@@ -103,33 +109,40 @@ describe("LoadingState", () => {
     expect(s.isNotStarted()).toEqual(true);
   });
 
-  it("should throw an error if setNotStarted is called in invalid state", () => {
+  it("should successfully reset in error state", () => {
+    const s = new LoadingState<string>({
+      type: LoadingStateType.Error,
+      error: {},
+    });
+    s.reset();
+    expect(s.isNotStarted()).toEqual(true);
+  });
+
+  it("should throw an error if reset is called in notStarted state", () => {
     const s = new LoadingState();
     expect(() => {
-      s.setNotStarted();
+      s.reset();
     }).toThrowError();
   });
 
   it("should set the notStarted state correctly (cancelling a loading state)", () => {
     const s = new LoadingState();
-    s.setLoading();
-    s.setNotStarted();
+    s.start();
+    s.reset();
     expect(s.isNotStarted()).toEqual(true);
   });
 
   it("should return the error if in error state", () => {
     const s = new LoadingState();
-    s.setLoading();
-    s.setError("something went wrong");
+    s.start();
+    s.fail("something went wrong");
     expect(s.getError()).toEqual("something went wrong");
   });
 
-  it("should throw an error if getError is called when not in loading state", () => {
+  it("should return undefined getError is called when not in loading state", () => {
     const s = new LoadingState();
-    s.setLoading();
-    expect(() => {
-      s.getError();
-    }).toThrow();
+    s.start();
+    expect(s.getError()).toBe(undefined);
   });
 
   it("should emit loading states on subscription", () => {
@@ -138,7 +151,7 @@ describe("LoadingState", () => {
     s.asObservable().subscribe((v) => {
       states.push(v);
     });
-    s.setLoading();
+    s.start();
 
     const expectedEmittedStates: LoadingStateSnapshot<number>[] = [
       {
@@ -159,7 +172,7 @@ describe("LoadingState", () => {
       states.push(v);
     });
     subscription.unsubscribe();
-    s.setLoading();
+    s.start();
 
     const expectedEmittedStates: LoadingStateSnapshot<number>[] = [
       {

@@ -2,6 +2,14 @@ import { BehaviorSubject, Observable } from "rxjs";
 import type { LoadingStateSnapshot } from "./loading-state.snapshot";
 import { LoadingStateType } from "./loading-state.type";
 
+class IllegalStateTransitionError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "IllegalStateTransitionError";
+    Object.setPrototypeOf(this, new.target.prototype); // restore prototype chain
+  }
+}
+
 export class LoadingState<T> {
   private snapshot: BehaviorSubject<LoadingStateSnapshot<T>>;
 
@@ -30,7 +38,7 @@ export class LoadingState<T> {
       return value.data;
     }
 
-    throw new Error(`Illegal state - not allowed to retrieve data`);
+    return undefined;
   }
 
   getError(): any {
@@ -39,34 +47,28 @@ export class LoadingState<T> {
       return value.error;
     }
 
-    throw new Error(`Illegal state - not allowed to retrieve error`);
+    return undefined;
   }
 
-  updateData(newData?: T) {
-    if (this.isSuccess() || this.isLoading()) {
-      this.snapshot.next({
-        type: LoadingStateType.Loading,
-        data: newData,
-      });
-    }
-  }
-
-  reset() {
-    if (this.isLoading()) {
-      throw new Error("Can´t reset loading state while loading");
+  update(newData?: T) {
+    if (!this.isLoading()) {
+      throw new Error(
+        `Update is only allowed during ${LoadingStateType.Loading} state`
+      );
     }
 
     this.snapshot.next({
-      type: LoadingStateType.NotStarted,
+      type: LoadingStateType.Loading,
+      data: newData,
     });
   }
 
-  setLoading() {
+  start() {
     if (this.isLoading()) {
-      throw new Error(
-        `Illegal state transition ${this.getType()} -> ${
+      throw new IllegalStateTransitionError(
+        `Transition from ${this.getType()} to ${
           LoadingStateType.Loading
-        }`
+        } not allowed`
       );
     }
 
@@ -76,40 +78,42 @@ export class LoadingState<T> {
     });
   }
 
-  setSuccess(data?: T) {
+  succeed(data?: T) {
     if (!this.isLoading()) {
-      throw new Error(
-        `Illegal state transition ${this.getType()} -> ${
+      throw new IllegalStateTransitionError(
+        `Transition from ${this.getType()} to ${
           LoadingStateType.Success
-        }`
+        } not allowed`
       );
     }
 
     this.snapshot.next({ type: LoadingStateType.Success, data });
   }
 
-  setError(error: any) {
+  fail(error: any) {
     if (!this.isLoading()) {
-      throw new Error(
-        `Illegal state transition ${this.getType()} -> ${
+      throw new IllegalStateTransitionError(
+        `Transition from ${this.getType()} to ${
           LoadingStateType.Error
-        }`
+        } not allowed`
       );
     }
 
     this.snapshot.next({ type: LoadingStateType.Error, error });
   }
 
-  setNotStarted() {
-    if (!this.isLoading()) {
-      throw new Error(
-        `Illegal state transition ${this.getType()} -> ${
+  reset() {
+    if (this.isNotStarted()) {
+      throw new IllegalStateTransitionError(
+        `Transition from ${this.getType()} to ${
           LoadingStateType.NotStarted
-        }`
+        } not allowed`
       );
     }
 
-    this.snapshot.next({ type: LoadingStateType.NotStarted });
+    this.snapshot.next({
+      type: LoadingStateType.NotStarted,
+    });
   }
 
   getType(): LoadingStateType {

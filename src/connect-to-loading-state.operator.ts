@@ -9,21 +9,21 @@ export function connectToLoadingState<Data>(
 ): MonoTypeOperatorFunction<Data> {
   return function (source: Observable<Data>): Observable<Data> {
     return new Observable<Data>((subscriber) => {
-      loadingState.setLoading();
+      loadingState.start();
 
       const innerSubscription = source.subscribe({
         next: (value: Data) => {
-          loadingState.updateData(value);
+          loadingState.update(value);
           subscriber.next(value);
         },
 
         error: (error: any) => {
-          loadingState.setError(error);
+          loadingState.fail(error);
           subscriber.error(error);
         },
 
         complete: () => {
-          loadingState.setSuccess(loadingState.getData());
+          loadingState.succeed(loadingState.getData());
           subscriber.complete();
         },
       });
@@ -33,7 +33,7 @@ export function connectToLoadingState<Data>(
 
         // Reset to not-started if loading was cancelled
         if (loadingState.isLoading()) {
-          loadingState.setNotStarted();
+          loadingState.reset();
         }
       };
 

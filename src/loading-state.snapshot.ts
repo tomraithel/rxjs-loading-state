@@ -3,6 +3,7 @@ import type { LoadingStateType } from "./loading-state.type";
 export interface LoadingStateSnapshotNotStarted {
   type: LoadingStateType.NotStarted;
 }
+
 export interface LoadingStateSnapshotLoading<T> {
   type: LoadingStateType.Loading;
   data: T | undefined; // Could be set, if existing data is reloaded
