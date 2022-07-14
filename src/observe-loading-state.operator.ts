@@ -1,29 +1,29 @@
 import { MonoTypeOperatorFunction, Observable } from "rxjs";
-import type { LoadingState } from "./loading-state";
+import type { LoadingStateMachine } from "./loading-state-machine";
 
-// Add the ability to type the loadingState, without forcing TS to infer the operator type from this reference
+// Add the ability to type the LoadingStateMachine, without forcing TS to infer the operator type from this reference
 type NoInfer<T> = [T][T extends any ? 0 : never];
 
-export function connectToLoadingState<Data>(
-  loadingState: LoadingState<NoInfer<Data>>
+export function observeLoadingState<Data>(
+  LoadingStateMachine: LoadingStateMachine<NoInfer<Data>>
 ): MonoTypeOperatorFunction<Data> {
   return function (source: Observable<Data>): Observable<Data> {
     return new Observable<Data>((subscriber) => {
-      loadingState.start();
+      LoadingStateMachine.start();
 
       const innerSubscription = source.subscribe({
         next: (value: Data) => {
-          loadingState.update(value);
+          LoadingStateMachine.update(value);
           subscriber.next(value);
         },
 
         error: (error: any) => {
-          loadingState.fail(error);
+          LoadingStateMachine.fail(error);
           subscriber.error(error);
         },
 
         complete: () => {
-          loadingState.succeed(loadingState.getData());
+          LoadingStateMachine.succeed(LoadingStateMachine.data);
           subscriber.complete();
         },
       });
@@ -32,8 +32,8 @@ export function connectToLoadingState<Data>(
         innerSubscription.unsubscribe();
 
         // Reset to not-started if loading was cancelled
-        if (loadingState.isLoading()) {
-          loadingState.reset();
+        if (LoadingStateMachine.isLoading()) {
+          LoadingStateMachine.reset();
         }
       };
 

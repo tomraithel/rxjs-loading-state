@@ -13,15 +13,10 @@
 - [Getting Started](#getting-started)
   - [Installation](#installation)
   - [TL;DR](#tldr)
-  - [What is a LoadingState?](#what-is-a-loading-state)
+  - [What is a LoadingStateMachine?](#what-is-a-loading-state)
+  - [observeLoadingState operator explained](#observeLoadingState-operator)
 - [API](#api)
-  - [LoadingState](#loading-state)
-    - [getObject()](#getobject)
-    - [getAll()](#getall)
-    - [put()](#put)
-    - [putObject()](#putobject)
-    - [remove()](#remove)
-    - [removeAll()](#removeall)
+  - [LoadingStateMachine](#loading-state)
 
 ## <a name="getting-started"></a> Getting started
 
@@ -35,88 +30,128 @@ npm install rxjs-loading-state --save
 
 ### <a name="tldr"></a> TL;DR
 
-You create a `LoadingState` object and connect it to your observable. This object now reflects the loading state of your observable:
+You create a `LoadingStateMachine` object and connect it to your observable. This object now reflects the loading state of your Observable:
 
 ```ts
-// Create a LoadingState object
-const loadingState = new LoadingState<number>();
+// Create a new LoadingStateMachine instance
+const machine = new LoadingStateMachine<number>();
 
-// Create an observable that finishes after 1000ms and connect it to the loadingState
-const loadData$ = of(42).pipe(delay(1000), connectToLoadingState(loadingState));
+// Create an Observable that finishes after 1000ms and connect it to the machine
+const loadData$ = of(42).pipe(delay(1000), observeLoadingState(machine));
 
 // As long as no one is subscribed, loading state is in "notStarted" state
-loadingState.getType(); // "notStarted"
+console.log(machine.state); // "notStarted"
 
 // After subscription, loading state transitions to "loading" state
 loadData$.subscribe();
-loadingState.getType(); // "loading"
+console.log(machine.state); // "loading"
 
 // After 2s the Observable is completed and loadingState transitioned to "success"
 setTimeout(() => {
-  loadingState.getType(); // "success"
+  console.log(machine.state); // "success"
 }, 2000);
 ```
 
-### <a name="what-is-a-loading-state"></a> What is a `LoadingState`?
+### <a name="what-is-a-loading-state"></a> What is a `LoadingStateMachine`?
 
-The `LoadingState` class is a small state-machine that consists of four states it can be in:
+The `LoadingStateMachine` is a small state-machine that consists of four states it can be in:
 
-| Type         | Description                                                  |
-| ------------ | ------------------------------------------------------------ |
-| `NotStarted` | Loading has not been started.yet.                            |
-| `Loading`    | Data is getting loaded. Could be the first load or a reload. |
-| `Error`      | An error occurred during loading.                            |
-| `Success`    | Data has successfully been loaded.                           |
+| Type                          | Description                                                  |
+| ----------------------------- | ------------------------------------------------------------ |
+| `LoadingStateName.NotStarted` | Loading has not been started yet.                            |
+| `LoadingStateName.Loading`    | Data is getting loaded. Could be the first load or a reload. |
+| `LoadingStateName.Error`      | An error occurred during loading.                            |
+| `LoadingStateName.Success`    | Data has successfully been loaded.                           |
+
+Transition between these steps can be performed with event methods. This state-chart gives an overview, which event can be called in which state.
+
+<img src="docs/state-machine.png" alt="state-machine" width="600"/>
+
+> Note: If an event is triggered in an invalid state, the state machine rises an exception!
+
+```typescript
+const machine = new LoadingStateMachine<string>();
+
+machine.start();
+console.log(machine.state); // "loading"
+console.log(machine.data); // undefined
+
+machine.succeed("my-data");
+console.log(machine.state); // "success"
+console.log(machine.data); // "my-data"
+
+machine.succeed("boo"); // throws IllegalStateTransitionError: Transition from success to success not allowed
+```
+
+### <a name="observeLoadingState-operator"></a> The `observeLoadingState` explained
+
+Although you can manually trigger state changes on a `LoadingStateMachine`, there is a better way to do it.
+
+The `observeLoadingState` operator connects your state machine to an existing Observable. As soon as a subscription to this Observable starts, the `LoadingStateMachine` instance gets updated automatically and can be used in your view template.
+
+```typescript
+const machine = new LoadingStateMachine();
+fetchData().pipe(observeLoadingState(machine)).subscribe();
+
+// later in your render-loop or template
+function render() {
+  if (machine.isLoading()) {
+    return "loading...";
+  }
+
+  if (machine.isError()) {
+    return "error: " + machine.error.message;
+  }
+
+  if (machine.isSuccess()) {
+    return "data fetched: " + machine.data;
+  }
+}
+```
 
 ## <a name="api"></a> API
 
-### <a name="loading-state"></a> LoadingState
+TODO
 
-```typescript
-constructor(initialValue: LoadingStateSnapshot<T>)
-```
+<!--  JSDOC START -->
 
-#### asObservable
+<!--  JSDOC END -->
 
-Returns an Observable that contains the state changes
+<!-- State machine code -> https://stately.ai/viz
 
-```typescript
-asObservable(): Observable<LoadingStateSnapshot<T>>
-```
+import { createMachine, assign } from 'xstate';
 
-README: TODO :/
 
-```
-const fetchMachine = Machine({
+const fetchMachine = createMachine<Context>({
   id: "LoadingState",
   initial: "notStarted",
-  context: {
-    retries: 0,
-  },
   states: {
     notStarted: {
       on: {
-        subscribe: "loading",
+        start: "loading",
       },
     },
     loading: {
       on: {
-        next: "loading",
-        complete: "success",
-        unsubscribe: "notStarted",
-        error: "error",
+        update: "loading",
+        succeed: "success",
+        reset: "notStarted",
+        fail: "error",
       },
     },
     success: {
       on: {
-        subscribe: "loading",
+        reset: "notStarted",
+        start: "loading",
       },
     },
     error: {
       on: {
-        subscribe: "loading",
+        reset: "notStarted",
+        start: "loading",
       },
     },
   },
 });
 ```
+-->
