@@ -3,6 +3,7 @@
 # rxjs-loading-state
 
 [![rxjs-loading-state](https://circleci.com/gh/tomraithel/rxjs-loading-state.svg?style=shield)](https://app.circleci.com/pipelines/github/tomraithel/rxjs-loading-state)
+[![npm](https://img.shields.io/npm/v/rxjs-loading-state)](https://www.npmjs.com/package/rxjs-loading-state)
 
 **rxjs-loading-state** eliminates manual state management for loading and error states by transforming `Observables` into a `LoadingState`.
 
