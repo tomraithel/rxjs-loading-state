@@ -10,6 +10,7 @@ class IllegalStateTransitionError extends Error {
 }
 
 /**
+ * Handles transitions between different loading state and holds the context data that is related to the current state.
  * @class LoadingStateMachine
  */
 export class LoadingStateMachine<T> {
@@ -51,6 +52,10 @@ export class LoadingStateMachine<T> {
     return this._state$.getValue();
   }
 
+  /**
+   * Update data while in loading state
+   * @param {T} newData
+   */
   update(newData?: T) {
     if (!this.isLoading()) {
       throw new Error(
@@ -62,6 +67,9 @@ export class LoadingStateMachine<T> {
     this._state$.next(LoadingState.Loading);
   }
 
+  /**
+   * Starts loading
+   */
   start() {
     if (this.isLoading()) {
       throw new IllegalStateTransitionError(
@@ -72,6 +80,10 @@ export class LoadingStateMachine<T> {
     this._state$.next(LoadingState.Loading);
   }
 
+  /**
+   * Mark loading as success
+   * @param {T} data
+   */
   succeed(data?: T) {
     if (!this.isLoading()) {
       throw new IllegalStateTransitionError(
@@ -84,6 +96,10 @@ export class LoadingStateMachine<T> {
     this._state$.next(LoadingState.Success);
   }
 
+  /**
+   * Mark loading as error
+   * @param {any} error
+   */
   fail(error: any) {
     if (!this.isLoading()) {
       throw new IllegalStateTransitionError(
@@ -96,6 +112,9 @@ export class LoadingStateMachine<T> {
     this._state$.next(LoadingState.Error);
   }
 
+  /**
+   * Resets machine to not started
+   */
   reset() {
     if (this.isNotStarted()) {
       throw new IllegalStateTransitionError(
@@ -108,29 +127,52 @@ export class LoadingStateMachine<T> {
     this._state$.next(LoadingState.NotStarted);
   }
 
+  /**
+   * @returns {Boolean} True if machine if loading has not been started or reset
+   */
   isNotStarted(): boolean {
     return this.state === LoadingState.NotStarted;
   }
 
+  /**
+   * @returns {Boolean} True if machine is in loading state
+   */
   isLoading(): boolean {
     return this.state === LoadingState.Loading;
   }
 
+  /**
+   *
+   * @returns {Boolean} True if machine is in error state
+   */
   isError(): boolean {
     return this.state === LoadingState.Error;
   }
 
+  /**
+   * @returns {Boolean} True if machine is in success state
+   */
   isSuccess(): boolean {
     return this.state === LoadingState.Success;
   }
 
-  public static asError(error: any) {
-    const state = new LoadingStateMachine();
+  /**
+   * Factory to create a new machine in error state
+   * @param {any} error
+   * @returns {LoadingStateMachine<T>} The new LoadingStateMachine
+   */
+  public static asError<T>(error: any) {
+    const state = new LoadingStateMachine<T>();
     state.start();
     state.fail(error);
     return state;
   }
 
+  /**
+   * Factory to create a new machine in success state
+   * @param {T} data
+   * @returns {LoadingStateMachine<T>} The new LoadingStateMachine
+   */
   public static asSuccess<T>(data: T) {
     const state = new LoadingStateMachine<T>();
     state.start();
@@ -138,6 +180,11 @@ export class LoadingStateMachine<T> {
     return state;
   }
 
+  /**
+   * Factory to create a new machine in loading state
+   * @param {T | undefined} data
+   * @returns {LoadingStateMachine<T>} The new LoadingStateMachine
+   */
   public static asLoading<T>(data: T | undefined = undefined) {
     const state = new LoadingStateMachine<T>();
     state.start();
