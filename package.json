@@ -1,6 +1,6 @@
 {
   "name": "rxjs-loading-state",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Eliminates manual state management for loading and error states by transforming Observables into a LoadingState",
   "main": "dist/main.js",
   "scripts": {
