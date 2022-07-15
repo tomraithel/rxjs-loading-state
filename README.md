@@ -14,7 +14,7 @@
   - [Installation](#installation)
   - [TL;DR](#tldr)
   - [What is a LoadingStateMachine?](#what-is-a-loading-state)
-  - [observeLoadingState operator explained](#observeLoadingState-operator)
+  - [trackLoadingBy operator explained](#trackLoadingBy-operator)
 - [API](#api)
   - [LoadingStateMachine](#loading-state)
 
@@ -36,8 +36,8 @@ You create a `LoadingStateMachine` object and connect it to your observable. Thi
 // Create a new LoadingStateMachine instance
 const machine = new LoadingStateMachine<number>();
 
-// Create an Observable that finishes after 1000ms and connect it to the machine
-const loadData$ = of(42).pipe(delay(1000), observeLoadingState(machine));
+// Create an Observable that finishes after 1000ms and track it by the machine
+const loadData$ = of(42).pipe(delay(1000), trackLoadingBy(machine));
 
 // As long as no one is subscribed, loading state is in "notStarted" state
 console.log(machine.state); // "notStarted"
@@ -83,15 +83,15 @@ console.log(machine.data); // "my-data"
 machine.succeed("boo"); // throws IllegalStateTransitionError: Transition from success to success not allowed
 ```
 
-### <a name="observeLoadingState-operator"></a> The `observeLoadingState` explained
+### <a name="trackLoadingBy-operator"></a> The `trackLoadingBy` explained
 
 Although you can manually trigger state changes on a `LoadingStateMachine`, there is a better way to do it.
 
-The `observeLoadingState` operator connects your state machine to an existing Observable. As soon as a subscription to this Observable starts, the `LoadingStateMachine` instance gets updated automatically and can be used in your view template.
+The `trackLoadingBy` operator connects your state machine to an existing Observable. As soon as a subscription to this Observable starts, the `LoadingStateMachine` instance gets updated automatically and can be used in your view template.
 
 ```typescript
 const machine = new LoadingStateMachine();
-fetchData().pipe(observeLoadingState(machine)).subscribe();
+fetchData().pipe(trackLoadingBy(machine)).subscribe();
 
 // later in your render-loop or template
 function render() {

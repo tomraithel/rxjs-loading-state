@@ -4,7 +4,7 @@ import type { LoadingStateMachine } from "./loading-state-machine";
 // Add the ability to type the LoadingStateMachine, without forcing TS to infer the operator type from this reference
 type NoInfer<T> = [T][T extends any ? 0 : never];
 
-export function observeLoadingState<Data>(
+export function trackLoadingBy<Data>(
   LoadingStateMachine: LoadingStateMachine<NoInfer<Data>>
 ): MonoTypeOperatorFunction<Data> {
   return function (source: Observable<Data>): Observable<Data> {

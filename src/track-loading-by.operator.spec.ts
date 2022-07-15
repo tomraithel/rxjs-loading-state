@@ -1,8 +1,8 @@
 import { catchError, from, Observable, of, Subject, throwError } from "rxjs";
-import { observeLoadingState } from "./observe-loading-state.operator";
+import { trackLoadingBy } from "./track-loading-by.operator";
 import { LoadingStateMachine } from "./loading-state-machine";
 
-describe("observeLoadingState", () => {
+describe("trackLoadingBy", () => {
   let loadingStateMachine: LoadingStateMachine<number>;
 
   beforeEach(() => {
@@ -15,14 +15,14 @@ describe("observeLoadingState", () => {
 
   it("should have loading state, if subscribed but not completed", () => {
     const subject = new Subject<number>();
-    const stream$ = subject.pipe(observeLoadingState(loadingStateMachine));
+    const stream$ = subject.pipe(trackLoadingBy(loadingStateMachine));
     stream$.subscribe();
     expect(loadingStateMachine.isLoading()).toEqual(true);
   });
 
   it("should have success state if subscribed and completed", () => {
     const stream$ = from([1, 2, 3, 4]).pipe(
-      observeLoadingState(loadingStateMachine)
+      trackLoadingBy(loadingStateMachine)
     );
     stream$.subscribe();
     expect(loadingStateMachine.isSuccess()).toEqual(true);
@@ -32,7 +32,7 @@ describe("observeLoadingState", () => {
     const stream$ = (
       throwError(() => new Error("foo")) as Observable<number>
     ).pipe(
-      observeLoadingState(loadingStateMachine),
+      trackLoadingBy(loadingStateMachine),
       catchError(() => {
         return of(1);
       })
@@ -43,7 +43,7 @@ describe("observeLoadingState", () => {
 
   it("should update the value correctly during loading", (done) => {
     const stream$ = from([1, 2, 3, 4]).pipe(
-      observeLoadingState(loadingStateMachine)
+      trackLoadingBy(loadingStateMachine)
     );
 
     stream$.subscribe({
@@ -64,7 +64,7 @@ describe("observeLoadingState", () => {
 
   it("should have notStarted state after subscription has been cancelled", () => {
     const subject = new Subject<number>();
-    const stream$ = subject.pipe(observeLoadingState(loadingStateMachine));
+    const stream$ = subject.pipe(trackLoadingBy(loadingStateMachine));
     const subscription = stream$.subscribe();
     expect(loadingStateMachine.isLoading()).toEqual(true);
     subscription.unsubscribe();
@@ -73,7 +73,7 @@ describe("observeLoadingState", () => {
 
   it("should have no open subscribers after unsubscribe", () => {
     const subject = new Subject<number>();
-    const stream$ = subject.pipe(observeLoadingState(loadingStateMachine));
+    const stream$ = subject.pipe(trackLoadingBy(loadingStateMachine));
     const subscription = stream$.subscribe();
     subscription.unsubscribe();
     expect(subject.observed).toEqual(false);
