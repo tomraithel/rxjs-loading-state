@@ -4,26 +4,30 @@ import type { LoadingStateMachine } from "./loading-state-machine";
 // Add the ability to type the LoadingStateMachine, without forcing TS to infer the operator type from this reference
 type NoInfer<T> = [T][T extends any ? 0 : never];
 
+/**
+ * Tracks an observable, by emitting loading events to the passed in state machine
+ * @param {LoadingStateMachine<Data>} loadingStateMachine
+ */
 export function trackLoadingBy<Data>(
-  LoadingStateMachine: LoadingStateMachine<NoInfer<Data>>
+  loadingStateMachine: LoadingStateMachine<NoInfer<Data>>
 ): MonoTypeOperatorFunction<Data> {
   return function (source: Observable<Data>): Observable<Data> {
     return new Observable<Data>((subscriber) => {
-      LoadingStateMachine.start();
+      loadingStateMachine.start();
 
       const innerSubscription = source.subscribe({
         next: (value: Data) => {
-          LoadingStateMachine.update(value);
+          loadingStateMachine.update(value);
           subscriber.next(value);
         },
 
         error: (error: any) => {
-          LoadingStateMachine.fail(error);
+          loadingStateMachine.fail(error);
           subscriber.error(error);
         },
 
         complete: () => {
-          LoadingStateMachine.succeed(LoadingStateMachine.data);
+          loadingStateMachine.succeed(loadingStateMachine.data);
           subscriber.complete();
         },
       });
@@ -32,8 +36,8 @@ export function trackLoadingBy<Data>(
         innerSubscription.unsubscribe();
 
         // Reset to not-started if loading was cancelled
-        if (LoadingStateMachine.isLoading()) {
-          LoadingStateMachine.reset();
+        if (loadingStateMachine.isLoading()) {
+          loadingStateMachine.reset();
         }
       };
 

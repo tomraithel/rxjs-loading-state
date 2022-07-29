@@ -5,6 +5,8 @@
   "main": "dist/main.js",
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
+    "create-docs-loading-state": "npm run build && npx jsdoc2md dist/loading-state-machine.js | sed -e 's/\\.\\&lt;/\\&lt;/g'",
+    "create-docs-operator": "npm run build && npx jsdoc2md dist/track-loading-by.operator.js | sed -e 's/\\.\\&lt;/\\&lt;/g'",
     "test": "jest"
   },
   "repository": {

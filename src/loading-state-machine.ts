@@ -81,7 +81,7 @@ export class LoadingStateMachine<T> {
   }
 
   /**
-   * Mark loading as success
+   * Transition to success state
    * @param {T} data
    */
   succeed(data?: T) {
@@ -97,7 +97,7 @@ export class LoadingStateMachine<T> {
   }
 
   /**
-   * Mark loading as error
+   * Transition to error state
    * @param {any} error
    */
   fail(error: any) {

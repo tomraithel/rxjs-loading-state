@@ -17,7 +17,8 @@
   - [What is a LoadingStateMachine?](#what-is-a-loading-state)
   - [trackLoadingBy operator explained](#trackLoadingBy-operator)
 - [API](#api)
-  - [LoadingStateMachine](#loading-state)
+  - [LoadingStateMachine](#LoadingStateMachine)
+  - [trackLoadingBy](#trackLoadingBy)
 
 ## <a name="getting-started"></a> Getting started
 
@@ -112,11 +113,205 @@ function render() {
 
 ## <a name="api"></a> API
 
-TODO
+<!-- JSDOC START -->
 
-<!--  JSDOC START -->
+> rxjs-loading-state@1.0.1 create-docs
+> npm run build && npx jsdoc2md dist/loading-state-machine.js | sed -e 's/\.\&lt;/\&lt;/g'
 
-<!--  JSDOC END -->
+> rxjs-loading-state@1.0.1 build
+> tsc --project tsconfig.build.json
+
+<a name="LoadingStateMachine"></a>
+
+## LoadingStateMachine
+
+**Kind**: global class
+
+- [LoadingStateMachine](#LoadingStateMachine)
+  - [new LoadingStateMachine()](#new_LoadingStateMachine_new)
+  - _instance_
+    - [.data](#LoadingStateMachine+data)
+    - [.error](#LoadingStateMachine+error)
+    - [.state](#LoadingStateMachine+state)
+    - [.asObservable()](#LoadingStateMachine+asObservable) ⇒ <code>Observable&lt;LoadingState&gt;</code>
+    - [.update(newData)](#LoadingStateMachine+update)
+    - [.start()](#LoadingStateMachine+start)
+    - [.succeed(data)](#LoadingStateMachine+succeed)
+    - [.fail(error)](#LoadingStateMachine+fail)
+    - [.reset()](#LoadingStateMachine+reset)
+    - [.isNotStarted()](#LoadingStateMachine+isNotStarted) ⇒ <code>Boolean</code>
+    - [.isLoading()](#LoadingStateMachine+isLoading) ⇒ <code>Boolean</code>
+    - [.isError()](#LoadingStateMachine+isError) ⇒ <code>Boolean</code>
+    - [.isSuccess()](#LoadingStateMachine+isSuccess) ⇒ <code>Boolean</code>
+  - _static_
+    - [.asError(error)](#LoadingStateMachine.asError) ⇒ <code>LoadingStateMachine&lt;T&gt;</code>
+    - [.asSuccess(data)](#LoadingStateMachine.asSuccess) ⇒ <code>LoadingStateMachine&lt;T&gt;</code>
+    - [.asLoading(data)](#LoadingStateMachine.asLoading) ⇒ <code>LoadingStateMachine&lt;T&gt;</code>
+
+<a name="new_LoadingStateMachine_new"></a>
+
+### new LoadingStateMachine()
+
+Handles transitions between different loading state and holds the context data that is related to the current state.
+
+<a name="LoadingStateMachine+data"></a>
+
+### loadingStateMachine.data
+
+Data of the current state. Depending on the current state, this may be undefined.
+
+**Kind**: instance property of [<code>LoadingStateMachine</code>](#LoadingStateMachine)  
+<a name="LoadingStateMachine+error"></a>
+
+### loadingStateMachine.error
+
+Error of the current state. Depending on the current state, this may be undefined.
+
+**Kind**: instance property of [<code>LoadingStateMachine</code>](#LoadingStateMachine)  
+<a name="LoadingStateMachine+state"></a>
+
+### loadingStateMachine.state
+
+The current LoadingState
+
+**Kind**: instance property of [<code>LoadingStateMachine</code>](#LoadingStateMachine)  
+<a name="LoadingStateMachine+asObservable"></a>
+
+### loadingStateMachine.asObservable() ⇒ <code>Observable&lt;LoadingState&gt;</code>
+
+Creates a new observable that represents the current state of the machine
+
+**Kind**: instance method of [<code>LoadingStateMachine</code>](#LoadingStateMachine)  
+**Returns**: <code>Observable&lt;LoadingState&gt;</code> - Observable that emits the machine state  
+<a name="LoadingStateMachine+update"></a>
+
+### loadingStateMachine.update(newData)
+
+Update data while in loading state
+
+**Kind**: instance method of [<code>LoadingStateMachine</code>](#LoadingStateMachine)
+
+| Param   | Type           |
+| ------- | -------------- |
+| newData | <code>T</code> |
+
+<a name="LoadingStateMachine+start"></a>
+
+### loadingStateMachine.start()
+
+Starts loading
+
+**Kind**: instance method of [<code>LoadingStateMachine</code>](#LoadingStateMachine)  
+<a name="LoadingStateMachine+succeed"></a>
+
+### loadingStateMachine.succeed(data)
+
+Transition to success state
+
+**Kind**: instance method of [<code>LoadingStateMachine</code>](#LoadingStateMachine)
+
+| Param | Type           |
+| ----- | -------------- |
+| data  | <code>T</code> |
+
+<a name="LoadingStateMachine+fail"></a>
+
+### loadingStateMachine.fail(error)
+
+Transition to error state
+
+**Kind**: instance method of [<code>LoadingStateMachine</code>](#LoadingStateMachine)
+
+| Param | Type             |
+| ----- | ---------------- |
+| error | <code>any</code> |
+
+<a name="LoadingStateMachine+reset"></a>
+
+### loadingStateMachine.reset()
+
+Resets machine to not started
+
+**Kind**: instance method of [<code>LoadingStateMachine</code>](#LoadingStateMachine)  
+<a name="LoadingStateMachine+isNotStarted"></a>
+
+### loadingStateMachine.isNotStarted() ⇒ <code>Boolean</code>
+
+**Kind**: instance method of [<code>LoadingStateMachine</code>](#LoadingStateMachine)  
+**Returns**: <code>Boolean</code> - True if machine if loading has not been started or reset  
+<a name="LoadingStateMachine+isLoading"></a>
+
+### loadingStateMachine.isLoading() ⇒ <code>Boolean</code>
+
+**Kind**: instance method of [<code>LoadingStateMachine</code>](#LoadingStateMachine)  
+**Returns**: <code>Boolean</code> - True if machine is in loading state  
+<a name="LoadingStateMachine+isError"></a>
+
+### loadingStateMachine.isError() ⇒ <code>Boolean</code>
+
+**Kind**: instance method of [<code>LoadingStateMachine</code>](#LoadingStateMachine)  
+**Returns**: <code>Boolean</code> - True if machine is in error state  
+<a name="LoadingStateMachine+isSuccess"></a>
+
+### loadingStateMachine.isSuccess() ⇒ <code>Boolean</code>
+
+**Kind**: instance method of [<code>LoadingStateMachine</code>](#LoadingStateMachine)  
+**Returns**: <code>Boolean</code> - True if machine is in success state  
+<a name="LoadingStateMachine.asError"></a>
+
+### LoadingStateMachine.asError(error) ⇒ <code>LoadingStateMachine&lt;T&gt;</code>
+
+Factory to create a new machine in error state
+
+**Kind**: static method of [<code>LoadingStateMachine</code>](#LoadingStateMachine)  
+**Returns**: <code>LoadingStateMachine&lt;T&gt;</code> - The new LoadingStateMachine
+
+| Param | Type             |
+| ----- | ---------------- |
+| error | <code>any</code> |
+
+<a name="LoadingStateMachine.asSuccess"></a>
+
+### LoadingStateMachine.asSuccess(data) ⇒ <code>LoadingStateMachine&lt;T&gt;</code>
+
+Factory to create a new machine in success state
+
+**Kind**: static method of [<code>LoadingStateMachine</code>](#LoadingStateMachine)  
+**Returns**: <code>LoadingStateMachine&lt;T&gt;</code> - The new LoadingStateMachine
+
+| Param | Type           |
+| ----- | -------------- |
+| data  | <code>T</code> |
+
+<a name="LoadingStateMachine.asLoading"></a>
+
+### LoadingStateMachine.asLoading(data) ⇒ <code>LoadingStateMachine&lt;T&gt;</code>
+
+Factory to create a new machine in loading state
+
+**Kind**: static method of [<code>LoadingStateMachine</code>](#LoadingStateMachine)  
+**Returns**: <code>LoadingStateMachine&lt;T&gt;</code> - The new LoadingStateMachine
+
+| Param | Type                                     |
+| ----- | ---------------------------------------- |
+| data  | <code>T</code> \| <code>undefined</code> |
+
+---
+
+<a name="trackLoadingBy"></a>
+
+## trackLoadingBy(loadingStateMachine)
+
+Tracks an observable, by emitting loading events to the passed in state machine
+
+**Kind**: global function
+
+| Param               | Type                                         |
+| ------------------- | -------------------------------------------- |
+| loadingStateMachine | <code>LoadingStateMachine&lt;Data&gt;</code> |
+
+<!-- JSDOC END>
+
 
 <!-- State machine code -> https://stately.ai/viz
 
