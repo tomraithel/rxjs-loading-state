@@ -115,12 +115,6 @@ function render() {
 
 <!-- JSDOC START -->
 
-> rxjs-loading-state@1.0.1 create-docs
-> npm run build && npx jsdoc2md dist/loading-state-machine.js | sed -e 's/\.\&lt;/\&lt;/g'
-
-> rxjs-loading-state@1.0.1 build
-> tsc --project tsconfig.build.json
-
 <a name="LoadingStateMachine"></a>
 
 ## LoadingStateMachine
