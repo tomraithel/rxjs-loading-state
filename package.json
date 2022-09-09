@@ -2,9 +2,16 @@
   "name": "rxjs-loading-state",
   "version": "1.0.2",
   "description": "Eliminates manual state management for loading and error states by transforming Observables into a LoadingState",
-  "main": "dist/main.js",
+  "main": "dist/cjs/main.js",
+  "module": "dist/esm/main.js",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/main.js",
+      "require": "./dist/cjs/main.js"
+    }
+  },
   "scripts": {
-    "build": "tsc --project tsconfig.build.json",
+    "build": "rm -rf ./dist && tsc --project tsconfig.build.json && tsc --project tsconfig.build.esm.json",
     "create-docs-loading-state": "npm run build && npx jsdoc2md dist/loading-state-machine.js | sed -e 's/\\.\\&lt;/\\&lt;/g'",
     "create-docs-operator": "npm run build && npx jsdoc2md dist/track-loading-by.operator.js | sed -e 's/\\.\\&lt;/\\&lt;/g'",
     "test": "jest"
@@ -33,6 +40,7 @@
     "@babel/core": "^7.18.6",
     "@babel/preset-env": "^7.18.6",
     "@babel/preset-typescript": "^7.18.6",
+    "@tsconfig/esm": "^1.0.2",
     "@tsconfig/node16-strictest": "^1.0.3",
     "@types/jest": "^28.1.4",
     "babel-jest": "^28.1.2",
