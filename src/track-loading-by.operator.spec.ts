@@ -62,6 +62,29 @@ describe("trackLoadingBy", () => {
     });
   });
 
+  it("should update the value and apply a data mapper", (done) => {
+    const stream$ = from(["1", "2", "3", "4"]).pipe(
+      trackLoadingBy(loadingStateMachine, (data) => {
+        return parseInt(data, 10) * 2;
+      })
+    );
+
+    stream$.subscribe({
+      next: (value) => {
+        expect(loadingStateMachine.data).toEqual(parseInt(value, 10) * 2);
+      },
+      complete: () => {
+        expect(loadingStateMachine.isSuccess()).toEqual(true);
+        expect(loadingStateMachine.data).toEqual(8);
+
+        // Need a timeout to test the tests in next()
+        setTimeout(() => {
+          done();
+        });
+      },
+    });
+  });
+
   it("should have notStarted state after subscription has been cancelled", () => {
     const subject = new Subject<number>();
     const stream$ = subject.pipe(trackLoadingBy(loadingStateMachine));
